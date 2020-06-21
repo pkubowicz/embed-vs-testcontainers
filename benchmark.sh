@@ -2,7 +2,7 @@
 
 print_summary () {
     echo $(tput bold)$(pwd | sed 's/.*\///')$(tput sgr0)
-    cat time.dat
+    echo -e "Time\t" $(cat time.dat)
     echo -e "CPU\t" $(cat cpu.dat | tail -n +2 | sed '$ d' | awk '{ total += $2; count++; if ($2>max) max=$2; } END { print "Max\t"  max "\tAverage\t" int(total/count) }')
     echo -e "Memory\t" $(cat memory.dat | tail -n +2 | sed '$ d' | awk '{ total += $2; count++; if ($2>max) max=$2; } END { print "Max\t"  max "\tAverage\t" int(total/count) }')
     echo -e "Mongo\t" $(cat mongo-count.dat | awk '{ total += $2; count++; if ($2>max) max=$2; } END { print "Max\t"  max "\tAverage\t" total/count }')
@@ -43,7 +43,7 @@ run_benchmark () {
 
 run_all () {
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
-    run_benchmark "embed-parallel" "mongo-embed" 60
+    run_benchmark "embed-parallel" "mongo-embed" 62
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
     run_benchmark "embed-serial" "mongo-embed" 80
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
@@ -55,6 +55,8 @@ run_all () {
     sed -i 's/\(testcontainers.reuse.enable=\).*/\1true/' ~/.testcontainers.properties
     run_benchmark "testcontainers-parallel-reuse" "mongo-testcontainers" 40
     run_benchmark "testcontainers-serial-reuse" "mongo-testcontainers" 60
+
+    echo All done
 }
 
 print_all_summaries () {
