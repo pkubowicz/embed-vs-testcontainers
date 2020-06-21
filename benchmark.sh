@@ -34,9 +34,9 @@ run_benchmark () {
     cd ../$RESULTS
     sar -f sar.binary -u 2 | tail -n +3 | awk '{print $1 "\t" $3 "\t" $5}' > cpu.dat
     sar -f sar.binary -r 2 | tail -n +3 | awk '{print $1 "\t" $4}' > memory.dat
-    cat cpu.dat | tail -n +2 | sed '$ d' | gnuplot -e "set terminal png size 800,600; set output 'cpu.png'"  ../../gnuplot.cfg
-    cat memory.dat | tail -n +2 | sed '$ d' | gnuplot -e "set terminal png size 800,600; set output 'memory.png'"  ../../gnuplot.cfg
-    cat mongo-count.dat | gnuplot -e "set terminal png size 800,600; set output 'mongo-count.png'" ../../gnuplot.cfg
+    cat cpu.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [0:100]; set terminal png size 800,600; set output 'cpu.png'"  ../../base.gnuplot
+    cat memory.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [2700000:5700000]; set terminal png size 800,600; set output 'memory.png'"  ../../base.gnuplot
+    cat mongo-count.dat | gnuplot -e "set yrange[0:7]; set terminal png size 800,600; set output 'mongo-count.png'" ../../base.gnuplot
     print_summary
     cd ../../
 }
@@ -74,6 +74,15 @@ print_all_summaries () {
         print_summary
         cd ../../
     done
+
+    rm -r results/all-times.dat
+    awk '{print "embed-serial\t" $1}' results/embed-serial/time.dat >> results/all-times.dat
+    awk '{print "embed-parallel\t" $1}' results/embed-parallel/time.dat >> results/all-times.dat
+    awk '{print "TC-serial\t" $1}' results/testcontainers-serial/time.dat >> results/all-times.dat
+    awk '{print "TC-parallel\t" $1}' results/testcontainers-parallel/time.dat >> results/all-times.dat
+    awk '{print "TC-serial-r\t" $1}' results/testcontainers-serial-reuse/time.dat >> results/all-times.dat
+    awk '{print "TC-parallel-r\t" $1}' results/testcontainers-parallel-reuse/time.dat >> results/all-times.dat
+    gnuplot all-times.gnuplot
 }
 
 run_all
