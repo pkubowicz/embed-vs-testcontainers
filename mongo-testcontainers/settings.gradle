@@ -1,0 +1,5 @@
+rootProject.name = 'mongo-testcontainers'
+
+include ':core'
+include ':proj1'
+include ':proj2'

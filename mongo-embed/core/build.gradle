@@ -1,0 +1,23 @@
+dependencies {
+    api platform('org.springframework.boot:spring-boot-dependencies:2.2.8.RELEASE')
+
+    runtimeOnly('org.jetbrains.kotlin:kotlin-reflect')
+
+    api("org.springframework.boot:spring-boot-starter-webflux")
+    api('io.projectreactor.kotlin:reactor-kotlin-extensions')
+    api("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
+    implementation('com.github.cloudyrock.mongock:mongock-spring:3.3.2')
+
+    // make startup slower
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation('org.springframework.security:spring-security-oauth2-jose')
+    implementation('org.springframework.security:spring-security-oauth2-resource-server')
+    api("org.springframework.boot:spring-boot-starter-security")
+    api("org.springframework.boot:spring-boot-starter-websocket")
+
+    implementation 'org.springdoc:springdoc-openapi-ui:1.3.9'
+    implementation 'org.springdoc:springdoc-openapi-security:1.3.9'
+    implementation 'org.springdoc:springdoc-openapi-kotlin:1.3.9'
+    api 'io.swagger.core.v3:swagger-annotations:[2.0.0,)'
+}

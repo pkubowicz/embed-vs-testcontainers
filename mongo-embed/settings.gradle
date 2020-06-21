@@ -1,0 +1,5 @@
+rootProject.name = 'mongo-embed'
+
+include ':core'
+include ':proj1'
+include ':proj2'
