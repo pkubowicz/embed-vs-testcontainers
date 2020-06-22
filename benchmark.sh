@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+TIME_CMD="/usr/bin/time"
+which gtime >/dev/null && TIME_CMD="gtime"
+
 print_summary () {
     echo $(tput bold)$(pwd | sed 's/.*\///')$(tput sgr0)
     echo -e "Time\t" $(cat time.dat)
@@ -28,7 +31,7 @@ run_benchmark () {
     sar -o ../$RESULTS/sar.binary 2 $(($MAX_DURATION/2)) >/dev/null 2>&1 &
     ../scripts/count-mongo.sh 2 $(($MAX_DURATION/2)) > ../$RESULTS/mongo-count.dat &
     sleep 2 # sar records first probe after 2 seconds
-    /usr/bin/time -f '%E %U %S' -o ../$RESULTS/time.dat ./gradlew --offline $GRADLE_CMD
+    $TIME_CMD -f '%E %U %S' -o ../$RESULTS/time.dat ./gradlew --offline $GRADLE_CMD
     sleep 10 # collecting runs in background, give it some time to flatten
 
     cd ../$RESULTS
