@@ -42,7 +42,9 @@ run_benchmark () {
 }
 
 run_all () {
+    docker ps | grep mongo | awk '{print $1}' | xargs docker stop 2>/dev/null
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
+
     run_benchmark "embed-parallel" "mongo-embed" 62
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
     run_benchmark "embed-serial" "mongo-embed" 80
@@ -55,6 +57,15 @@ run_all () {
     sed -i 's/\(testcontainers.reuse.enable=\).*/\1true/' ~/.testcontainers.properties
     run_benchmark "testcontainers-parallel-reuse" "mongo-testcontainers" 40
     run_benchmark "testcontainers-serial-reuse" "mongo-testcontainers" 60
+
+    rm -r results/all-times.dat
+    awk '{print "embed-serial\t" $1}' results/embed-serial/time.dat >> results/all-times.dat
+    awk '{print "embed-parallel\t" $1}' results/embed-parallel/time.dat >> results/all-times.dat
+    awk '{print "TC-serial\t" $1}' results/testcontainers-serial/time.dat >> results/all-times.dat
+    awk '{print "TC-parallel\t" $1}' results/testcontainers-parallel/time.dat >> results/all-times.dat
+    awk '{print "TC-serial-r\t" $1}' results/testcontainers-serial-reuse/time.dat >> results/all-times.dat
+    awk '{print "TC-parallel-r\t" $1}' results/testcontainers-parallel-reuse/time.dat >> results/all-times.dat
+    gnuplot all-times.gnuplot
 
     echo All done
 }
@@ -74,15 +85,6 @@ print_all_summaries () {
         print_summary
         cd ../../
     done
-
-    rm -r results/all-times.dat
-    awk '{print "embed-serial\t" $1}' results/embed-serial/time.dat >> results/all-times.dat
-    awk '{print "embed-parallel\t" $1}' results/embed-parallel/time.dat >> results/all-times.dat
-    awk '{print "TC-serial\t" $1}' results/testcontainers-serial/time.dat >> results/all-times.dat
-    awk '{print "TC-parallel\t" $1}' results/testcontainers-parallel/time.dat >> results/all-times.dat
-    awk '{print "TC-serial-r\t" $1}' results/testcontainers-serial-reuse/time.dat >> results/all-times.dat
-    awk '{print "TC-parallel-r\t" $1}' results/testcontainers-parallel-reuse/time.dat >> results/all-times.dat
-    gnuplot all-times.gnuplot
 }
 
 run_all
