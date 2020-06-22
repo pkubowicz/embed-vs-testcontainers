@@ -20,6 +20,7 @@ cd mongo-testcontainers
 cd ..
 
 /usr/bin/time --version || echo -e "You are missing GNU Time\n   brew install gnu-time"
+
 gnuplot --version
 
 if [[ -z $(which service) ]]; then

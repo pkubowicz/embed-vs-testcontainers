@@ -28,15 +28,15 @@ run_benchmark () {
     ./gradlew -q testClasses cleanTest --parallel
     rm -f ../$RESULTS/*
     echo Used memory: $(free | awk '{if (NR == 2) print $3}')
-    sar -o ../$RESULTS/sar.binary 2 $(($MAX_DURATION/2)) >/dev/null 2>&1 &
+    ../scripts/count-cpu-memory.sh 2 $(($MAX_DURATION/2)) ../$RESULTS &
     ../scripts/count-mongo.sh 2 $(($MAX_DURATION/2)) > ../$RESULTS/mongo-count.dat &
     sleep 2 # sar records first probe after 2 seconds
     $TIME_CMD -f '%E %U %S' -o ../$RESULTS/time.dat ./gradlew --offline $GRADLE_CMD
     sleep 10 # collecting runs in background, give it some time to flatten
 
     cd ../$RESULTS
-    sar -f sar.binary -u 2 | tail -n +3 | awk '{print $1 "\t" $3 "\t" $5}' > cpu.dat
-    sar -f sar.binary -r 2 | tail -n +3 | awk '{print $1 "\t" $4}' > memory.dat
+    [[ ! -f cpu.dat ]] && sar -f sar.binary -u 2 | tail -n +3 | awk '{print $1 "\t" $3 "\t" $5}' > cpu.dat
+    [[ ! -f memory.dat ]] && sar -f sar.binary -r 2 | tail -n +3 | awk '{print $1 "\t" $4}' > memory.dat
     cat cpu.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [0:100]; set terminal png size 800,600; set output 'cpu.png'"  ../../base.gnuplot
     cat memory.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [2700000:5700000]; set terminal png size 800,600; set output 'memory.png'"  ../../base.gnuplot
     cat mongo-count.dat | gnuplot -e "set yrange[0:7]; set terminal png size 800,600; set output 'mongo-count.png'" ../../base.gnuplot
@@ -60,9 +60,9 @@ run_all () {
     docker ps | grep mongo | awk '{print $1}' | xargs docker stop 2>/dev/null
     sed -i 's/\(testcontainers.reuse.enable=\).*/\1true/' ~/.testcontainers.properties
     run_benchmark "testcontainers-serial-reuse" "mongo-testcontainers" 60
-    # parallel later, because there a race condition will cause 3 containers to be created
-    # despite reuse enabled
     run_benchmark "testcontainers-parallel-reuse" "mongo-testcontainers" 40
+    # parallel after serial, because there a race condition will cause 3 containers to be created
+    # despite reuse enabled
 
     rm -r results/all-times.dat
     awk '{print "embed-serial\t" $1}' results/embed-serial/time.dat >> results/all-times.dat
