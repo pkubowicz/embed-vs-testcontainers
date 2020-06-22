@@ -54,9 +54,12 @@ run_all () {
     run_benchmark "testcontainers-parallel" "mongo-testcontainers" 40
     run_benchmark "testcontainers-serial" "mongo-testcontainers" 60
 
+    docker ps | grep mongo | awk '{print $1}' | xargs docker stop 2>/dev/null
     sed -i 's/\(testcontainers.reuse.enable=\).*/\1true/' ~/.testcontainers.properties
-    run_benchmark "testcontainers-parallel-reuse" "mongo-testcontainers" 40
     run_benchmark "testcontainers-serial-reuse" "mongo-testcontainers" 60
+    # parallel later, because there a race condition will cause 3 containers to be created
+    # despite reuse enabled
+    run_benchmark "testcontainers-parallel-reuse" "mongo-testcontainers" 40
 
     rm -r results/all-times.dat
     awk '{print "embed-serial\t" $1}' results/embed-serial/time.dat >> results/all-times.dat
