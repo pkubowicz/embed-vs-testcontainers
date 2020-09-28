@@ -18,7 +18,7 @@ import java.time.Clock
         "com.example.core"
     ]
 )
-@Import(Mongock3Configuration::class)
+@Import(MongockConfiguration::class)
 class CoreConfiguration {
 
     @Bean
