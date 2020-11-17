@@ -7,13 +7,13 @@ print_summary () {
     echo $(tput bold)$(pwd | sed 's/.*\///')$(tput sgr0)
     echo -e "Time\t" $(cat time.dat)
     echo -e "CPU\t" $(cat cpu.dat | tail -n +2 | sed '$ d' | awk '{ total += $2; count++; if ($2>max) max=$2; } END { print "Max\t"  max "\tAverage\t" int(total/count) }')
-    echo -e "Memory\t" $(cat memory.dat | tail -n +2 | sed '$ d' | awk '{ total += $2; count++; if ($2>max) max=$2; } END { print "Max\t"  max "\tAverage\t" int(total/count) }')
+    echo -e "Memory\t" $(cat memory.dat | tail -n +2 | sed '$ d' | awk 'BEGIN { min=99999999 } { total += $2; count++; if($2<min) min=$2; if ($2>max) max=$2; } END { print "Max\t"  max "\tMin\t" min "\tAverage\t" int(total/count) }')
     echo -e "Mongo\t" $(cat mongo-count.dat | awk '{ total += $2; count++; if ($2>max) max=$2; } END { print "Max\t"  max "\tAverage\t" total/count }')
     echo
 }
 
-run_benchmark () {
-    RESULTS="results/$1"
+measure_run () {
+    RESULTS=$1
     CODE=$2
     MAX_DURATION=$3
 
@@ -33,20 +33,41 @@ run_benchmark () {
     sleep 2 # sar records first probe after 2 seconds
     $TIME_CMD -f '%E %U %S' -o ../$RESULTS/time.dat ./gradlew --offline $GRADLE_CMD
     sleep 10 # collecting runs in background, give it some time to flatten
+    cd ..
+}
 
-    cd ../$RESULTS
+run_benchmark () {
+    RESULTS="results/$1"
+    MEM_LOWER=$(awk '{if (NR==1) print $2}' results/memory.dat)
+    MEM_UPPER=$(awk '{if (NR==3) print $2}' results/memory.dat)
+
+    measure_run $RESULTS $2 $3
+
+    cd $RESULTS
     [[ ! -f cpu.dat ]] && sar -f sar.binary -u 2 | tail -n +3 | awk '{print $1 "\t" $3 "\t" $5}' > cpu.dat
     [[ ! -f memory.dat ]] && sar -f sar.binary -r 2 | tail -n +3 | awk '{print $1 "\t" $4}' > memory.dat
     cat cpu.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [0:100]; set terminal png size 800,600; set output 'cpu.png'"  ../../base.gnuplot
-    cat memory.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [2700000:5700000]; set terminal png size 800,600; set output 'memory.png'"  ../../base.gnuplot
+    cat memory.dat | tail -n +2 | sed '$ d' | gnuplot -e "set yrange [$MEM_LOWER:$MEM_UPPER]; set terminal png size 800,600; set output 'memory.png'"  ../../base.gnuplot
     cat mongo-count.dat | gnuplot -e "set yrange[0:7]; set terminal png size 800,600; set output 'mongo-count.png'" ../../base.gnuplot
     print_summary
     cd ../../
 }
 
+save_lowest_memory () {
+    mkdir -p results
+    if [[ ! -f results/memory.dat ]]; then
+        USED_MEMORY=$(free | awk '{if (NR == 2) print $3}')
+        LOWER_RANGE=$(( ($USED_MEMORY - 10000) / 100000 * 100000 ))
+        UPPER_RANGE=$(( $LOWER_RANGE + 2500000 ))
+        echo -e "used_ceil\t$LOWER_RANGE\nused_actual\t$USED_MEMORY\nused_max\t$UPPER_RANGE" > results/memory.dat
+    fi
+}
+
 run_all () {
     docker ps | grep mongo | awk '{print $1}' | xargs docker stop 2>/dev/null
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
+
+    save_lowest_memory
 
     run_benchmark "embed-parallel" "mongo-embed" 62
     pgrep --full embedmongo | xargs kill -9 2>/dev/null
