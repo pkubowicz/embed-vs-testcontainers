@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    api platform('org.springframework.boot:spring-boot-dependencies:2.3.4.RELEASE')
+    api platform('org.springframework.boot:spring-boot-dependencies:2.3.6.RELEASE')
 
     runtimeOnly('org.jetbrains.kotlin:kotlin-reflect')
 
@@ -12,7 +12,7 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-data-mongodb")
     api("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
 
-    implementation(platform("com.github.cloudyrock.mongock:mongock-bom:4.1.17"))
+    implementation(platform("com.github.cloudyrock.mongock:mongock-bom:4.1.19"))
     implementation("com.github.cloudyrock.mongock:mongock-spring-v5")
     implementation("com.github.cloudyrock.mongock:mongodb-springdata-v3-driver")
 
@@ -32,5 +32,5 @@ dependencies {
         exclude group: 'org.junit.vintage'
     }
     testFixturesImplementation('org.jetbrains.kotlin:kotlin-stdlib-jdk8')
-    testFixturesApi('org.testcontainers:mongodb:1.14.3')
+    testFixturesApi('org.testcontainers:mongodb:1.15.0')
 }

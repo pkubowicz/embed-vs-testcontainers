@@ -64,7 +64,7 @@ run_all () {
     # parallel after serial, because there a race condition will cause 3 containers to be created
     # despite reuse enabled
 
-    rm -r results/all-times.dat
+    rm -rf results/all-times.dat
     awk '{print "embed-serial\t" $1}' results/embed-serial/time.dat >> results/all-times.dat
     awk '{print "embed-parallel\t" $1}' results/embed-parallel/time.dat >> results/all-times.dat
     awk '{print "TC-serial\t" $1}' results/testcontainers-serial/time.dat >> results/all-times.dat
