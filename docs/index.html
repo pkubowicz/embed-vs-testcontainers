@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>embed-vs-testcontainers results</title>
+</head>
+<body>
+<table>
+    <tr>
+        <th></th>
+        <th>embed-serial</th>
+        <th>embed-parallel</th>
+        <th>TC-serial</th>
+        <th>TC-parallel</th>
+        <th>TC-serial-reuse</th>
+        <th>TC-parallel-reuse</th>
+    </tr>
+    <tr>
+        <th>CPU</th>
+        <td><img src="results/embed-serial/cpu.png" width="250"></td>
+        <td><img src="results/embed-parallel/cpu.png" width="250"></td>
+        <td><img src="results/testcontainers-serial/cpu.png" width="250"></td>
+        <td><img src="results/testcontainers-parallel/cpu.png" width="250"></td>
+        <td><img src="results/testcontainers-serial-reuse/cpu.png" width="250"></td>
+        <td><img src="results/testcontainers-parallel-reuse/cpu.png" width="250"></td>
+    </tr>
+    <tr>
+        <th>Memory</th>
+        <td><img src="results/embed-serial/memory.png" width="250"></td>
+        <td><img src="results/embed-parallel/memory.png" width="250"></td>
+        <td><img src="results/testcontainers-serial/memory.png" width="250"></td>
+        <td><img src="results/testcontainers-parallel/memory.png" width="250"></td>
+        <td><img src="results/testcontainers-serial-reuse/memory.png" width="250"></td>
+        <td><img src="results/testcontainers-parallel-reuse/memory.png" width="250"></td>
+    </tr>
+    <tr>
+        <th>Instances</th>
+        <td><img src="results/embed-serial/mongo-count.png" width="250"></td>
+        <td><img src="results/embed-parallel/mongo-count.png" width="250"></td>
+        <td><img src="results/testcontainers-serial/mongo-count.png" width="250"></td>
+        <td><img src="results/testcontainers-parallel/mongo-count.png" width="250"></td>
+        <td><img src="results/testcontainers-serial-reuse/mongo-count.png" width="250"></td>
+        <td><img src="results/testcontainers-parallel-reuse/mongo-count.png" width="250"></td>
+    </tr>
+</table>
+<img src="results/all-times.png" alt="Test execution time">
+<footer><em>Generated using <a href="https://github.com/pkubowicz/embed-vs-testcontainers">github.com/pkubowicz/embed-vs-testcontainers</a></em></footer>
+</body>
+</html>
