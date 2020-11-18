@@ -3,6 +3,8 @@
 TIME_CMD="/usr/bin/time"
 which gtime >/dev/null && TIME_CMD="gtime"
 
+[[ $1 == "--no-run" ]] && NO_RUN=1
+
 print_summary () {
     echo $(tput bold)$(pwd | sed 's/.*\///')$(tput sgr0)
     echo -e "Time\t" $(cat time.dat)
@@ -41,7 +43,7 @@ run_benchmark () {
     MEM_LOWER=$(awk '{if (NR==1) print $2}' results/memory.dat)
     MEM_UPPER=$(awk '{if (NR==3) print $2}' results/memory.dat)
 
-    measure_run $RESULTS $2 $3
+    [[ -z $NO_RUN ]] && measure_run $RESULTS $2 $3
 
     cd $RESULTS
     [[ ! -f cpu.dat ]] && sar -f sar.binary -u 2 | tail -n +3 | awk '{print $1 "\t" $3 "\t" $5}' > cpu.dat
